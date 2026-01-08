@@ -64,6 +64,8 @@ func (e *CodexExecutor) Execute(ctx context.Context, auth *cliproxyauth.Auth, re
 	body := sdktranslator.TranslateRequest(from, to, model, bytes.Clone(req.Payload), false)
 	body = ApplyReasoningEffortMetadata(body, req.Metadata, model, "reasoning.effort", false)
 	body = NormalizeThinkingConfig(body, model, false)
+	// Codex only accepts reasoning.effort, not reasoning_effort
+	body, _ = sjson.DeleteBytes(body, "reasoning_effort")
 	if errValidate := ValidateThinkingConfig(body, model); errValidate != nil {
 		return resp, errValidate
 	}
@@ -170,6 +172,8 @@ func (e *CodexExecutor) ExecuteStream(ctx context.Context, auth *cliproxyauth.Au
 
 	body = ApplyReasoningEffortMetadata(body, req.Metadata, model, "reasoning.effort", false)
 	body = NormalizeThinkingConfig(body, model, false)
+	// Codex only accepts reasoning.effort, not reasoning_effort
+	body, _ = sjson.DeleteBytes(body, "reasoning_effort")
 	if errValidate := ValidateThinkingConfig(body, model); errValidate != nil {
 		return nil, errValidate
 	}
